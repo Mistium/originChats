@@ -166,14 +166,6 @@ def handle(ws, message, server_data=None):
                 if not username:
                     return {"cmd": "error", "val": "User not authenticated"}
                 
-                # Check rate limiting if enabled
-                if server_data and server_data.get("rate_limiter"):
-                    is_allowed, reason, wait_time = server_data["rate_limiter"].is_allowed(username)
-                    if not is_allowed:
-                        # Convert wait time to milliseconds and send rate_limit packet
-                        wait_time_ms = int(wait_time * 1000)
-                        return {"cmd": "rate_limit", "length": wait_time_ms}
-                
                 message_id = message.get("id")
                 channel_name = message.get("channel")
                 if not message_id or not channel_name:
