@@ -125,7 +125,7 @@ def handle(ws, message, server_data=None):
                         "channel": channel_name
                     }, server_data)
 
-                return {"cmd": "typing", "user": user, "channel": channel_name}
+                return {"cmd": "typing", "user": user, "channel": channel_name, "global": True}
             case "message_edit":
                 # Handle message edit
                 user = getattr(ws, 'username', None)
