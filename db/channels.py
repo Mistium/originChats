@@ -108,6 +108,7 @@ def edit_channel_message(channel_name, message_id, new_content):
         for msg in channel_data:
             if msg.get("id") == message_id:
                 msg["content"] = new_content
+                msg["edited"] = True
                 break
         else:
             return False  # Message not found
