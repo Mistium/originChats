@@ -102,6 +102,30 @@ def handle(ws, message, server_data=None):
 
                 # Optionally broadcast to all clients
                 return {"cmd": "message_new", "message": out_msg, "channel": channel_name, "global": True}
+            case "typing":
+                # Handle typing
+                user = getattr(ws, 'username', None)
+                if not user:
+                    return {"cmd": "error", "val": "User not authenticated"}
+
+                # Check rate limiting if enabled
+                if server_data and server_data.get("rate_limiter"):
+                    is_allowed, reason, wait_time = server_data["rate_limiter"].is_allowed(user)
+                    if not is_allowed:
+                        # Convert wait time to milliseconds and send rate_limit packet
+                        return {"cmd": "rate_limit", "val": reason, "wait_time": wait_time}
+
+                channel_name = message.get("channel")
+                if not channel_name:
+                    return {"cmd": "error", "val": "Channel name not provided"}
+                
+                if server_data and "plugin_manager" in server_data:
+                    server_data["plugin_manager"].trigger_event("typing", ws, {
+                        "user": user,
+                        "channel": channel_name
+                    }, server_data)
+
+                return {"cmd": "typing", "user": user, "channel": channel_name}
             case "message_edit":
                 # Handle message edit
                 user = getattr(ws, 'username', None)
