@@ -216,7 +216,7 @@ def handle(ws, message, server_data=None):
                 if not emoji:
                     return {"cmd": "error", "val": "Emoji is required"}
 
-                if not channels.add_reaction(channel_name, message_id, emoji):
+                if not channels.add_reaction(channel_name, message_id, emoji, username):
                     return {"cmd": "error", "val": "Failed to add reaction"}
                 return {"cmd": "message_react_add", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
             case "message_react_remove":
@@ -243,7 +243,7 @@ def handle(ws, message, server_data=None):
                 if not emoji:
                     return {"cmd": "error", "val": "Emoji is required"}
 
-                if not channels.remove_reaction(channel_name, message_id, emoji):
+                if not channels.remove_reaction(channel_name, message_id, emoji, username):
                     return {"cmd": "error", "val": "Failed to remove reaction"}
                 return {"cmd": "message_react_remove", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
             case "messages_get":
