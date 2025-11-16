@@ -205,7 +205,7 @@ def handle(ws, message, server_data=None):
 
                 channel_name = message.get("channel")
                 # Check if the user has permission to add reactions
-                if not channels.does_user_have_permission(channel_name, user_roles, "react"):
+                if not channels.can_user_react(channel_name, user_roles):
                     return {"cmd": "error", "val": "You do not have permission to add reactions to this message"}
 
                 message_id = message.get("id")
@@ -232,7 +232,7 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "User roles not found"}
 
                 # Check if the user has permission to remove reactions
-                if not channels.does_user_have_permission(channel_name, user_roles, "react"):
+                if not channels.can_user_react(channel_name, user_roles):
                     return {"cmd": "error", "val": "You do not have permission to remove reactions from this message"}
 
                 message_id = message.get("id")

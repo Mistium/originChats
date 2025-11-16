@@ -462,8 +462,27 @@ def can_user_edit_own(channel_name, user_roles):
                 allowed_roles = permissions.get("edit_own", [])
                 return any(role in allowed_roles for role in user_roles)
     except FileNotFoundError:
-        return True  # Default to True if channel index not found
-    return True  # Default to True if channel not found
+        return False
+    return False
+
+def can_user_react(channel_name, user_roles):
+    """
+    Check if a user with specific roles can react to messages in a channel.
+    If the channel does not specify react, all roles are allowed by default.
+    """
+    try:
+        with open(channels_index, 'r') as f:
+            channels_data = json.load(f)
+        for channel in channels_data:
+            if channel.get("name") == channel_name:
+                permissions = channel.get("permissions", {})
+                if "react" not in permissions:
+                    return True  # Default: all roles can react
+                allowed_roles = permissions.get("react", [])
+                return any(role in allowed_roles for role in user_roles)
+    except FileNotFoundError:
+        return False
+    return False
 
 def add_reaction(channel_name, message_id, emoji):
     """
