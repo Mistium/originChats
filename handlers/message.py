@@ -193,6 +193,59 @@ def handle(ws, message, server_data=None):
                 if not channels.delete_channel_message(channel_name, message_id):
                     return {"cmd": "error", "val": "Failed to delete message"}
                 return {"cmd": "message_delete", "id": message_id, "channel": channel_name, "global": True}
+            case "message_react_add":
+                # Handle request to add a reaction to a message
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles:
+                    return {"cmd": "error", "val": "User roles not found"}
+
+                channel_name = message.get("channel")
+                # Check if the user has permission to add reactions
+                if not channels.does_user_have_permission(channel_name, user_roles, "react"):
+                    return {"cmd": "error", "val": "You do not have permission to add reactions to this message"}
+
+                message_id = message.get("id")
+                if not message_id:
+                    return {"cmd": "error", "val": "Message ID is required"}
+
+                emoji = message.get("emoji")
+                if not emoji:
+                    return {"cmd": "error", "val": "Emoji is required"}
+
+                if not channels.add_reaction(channel_name, message_id, emoji):
+                    return {"cmd": "error", "val": "Failed to add reaction"}
+                return {"cmd": "message_react_add", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
+            case "message_react_remove":
+                # Handle request to remove a reaction from a message
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                channel_name = message.get("channel")
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles:
+                    return {"cmd": "error", "val": "User roles not found"}
+
+                # Check if the user has permission to remove reactions
+                if not channels.does_user_have_permission(channel_name, user_roles, "react"):
+                    return {"cmd": "error", "val": "You do not have permission to remove reactions from this message"}
+
+                message_id = message.get("id")
+                if not message_id:
+                    return {"cmd": "error", "val": "Message ID is required"}
+
+                emoji = message.get("emoji")
+                if not emoji:
+                    return {"cmd": "error", "val": "Emoji is required"}
+
+                if not channels.remove_reaction(channel_name, message_id, emoji):
+                    return {"cmd": "error", "val": "Failed to remove reaction"}
+                return {"cmd": "message_react_remove", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
             case "messages_get":
                 # Handle request for channel messages
                 channel_name = message.get("channel")

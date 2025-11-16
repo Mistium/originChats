@@ -1,4 +1,5 @@
 import json, os
+from . import users
 
 _MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -463,3 +464,143 @@ def can_user_edit_own(channel_name, user_roles):
     except FileNotFoundError:
         return True  # Default to True if channel index not found
     return True  # Default to True if channel not found
+
+def add_reaction(channel_name, message_id, emoji):
+    """
+    Add a reaction to a message in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to add the reaction to.
+        emoji (str): The emoji to add to the message.
+
+    Returns:
+        bool: True if the reaction was added successfully, False if the message or channel does not exist.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+
+        for msg in channel_data:
+            if msg.get("id") == message_id:
+                msg["reactions"] = msg.get("reactions", {})
+                if emoji not in msg["reactions"]:
+                    msg["reactions"][emoji] = []
+                if msg["reactions"][emoji] and msg["reactions"][emoji][0] != "rtr-unknown":
+                    return False
+                user = users.get_user(msg["user"])
+                if not user or not user.get("username"):
+                    return False
+                
+                msg["reactions"][emoji].append(user.get("username"))
+                msg["reactions"][emoji] = list(set(msg["reactions"][emoji]))
+
+                os.makedirs(channels_db_dir, exist_ok=True)
+                
+                with open(f"{channels_db_dir}/{channel_name}.json", 'w') as f:
+                    json.dump(channel_data, f, separators=(',', ':'), ensure_ascii=False)
+
+                return True
+        
+        return False
+    except FileNotFoundError:
+        return False
+    
+def remove_reaction(channel_name, message_id, emoji):
+    """
+    Remove a reaction from a message in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to remove the reaction from.
+        emoji (str): The emoji to remove from the message.
+
+    Returns:
+        bool: True if the reaction was removed successfully, False if the message or channel does not exist.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+
+        for msg in channel_data:
+            if msg.get("id") == message_id:
+                msg["reactions"] = msg.get("reactions", {})
+                if emoji not in msg["reactions"]:
+                    return False
+                if msg["reactions"][emoji] and msg["reactions"][emoji][0] != "rtr-unknown":
+                    return False
+                user = users.get_user(msg["user"])
+                if not user or not user.get("username"):
+                    return False
+                
+                msg["reactions"][emoji].remove(user.get("username"))
+                msg["reactions"][emoji] = list(set(msg["reactions"][emoji]))
+
+                if not msg["reactions"][emoji]:
+                    del msg["reactions"][emoji]
+
+                if not msg["reactions"]:
+                    del msg["reactions"]
+
+                if not channel_data:
+                    return False
+                
+                # Save the updated channel data
+                with open(f"{channels_db_dir}/{channel_name}.json", 'w') as f:
+                    json.dump(channel_data, f, separators=(',', ':'), ensure_ascii=False)
+
+                return True
+        
+        return False
+    except FileNotFoundError:
+        return False
+    
+def get_reactions(channel_name, message_id):
+    """
+    Get the reactions for a specific message in a channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to get the reactions for.
+
+    Returns:
+        dict: A dictionary containing the reactions for the message, or None if the message or channel does not exist.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+
+        for msg in channel_data:
+            if msg.get("id") == message_id:
+                return msg.get("reactions", {})
+        
+        return None
+    except FileNotFoundError:
+        return None
+    
+def get_reaction_users(channel_name, message_id, emoji):
+    """
+    Get the users who reacted with a specific emoji to a specific message in a channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to get the reactions for.
+        emoji (str): The emoji to get the users for.
+
+    Returns:
+        list: A list of usernames who reacted with the specified emoji, or None if the message or channel does not exist.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+
+        for msg in channel_data:
+            if msg.get("id") == message_id:
+                if emoji in msg.get("reactions", {}):
+                    return msg["reactions"][emoji]
+        
+        return None
+    except FileNotFoundError:
+        return None
+    except json.JSONDecodeError:
+        return None
