@@ -218,7 +218,7 @@ def handle(ws, message, server_data=None):
 
                 if not channels.add_reaction(channel_name, message_id, emoji, username):
                     return {"cmd": "error", "val": "Failed to add reaction"}
-                return {"cmd": "message_react_add", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
+                return {"cmd": "message_react_add", "id": message_id, "emoji": emoji, "channel": channel_name, "from": username, "global": True}
             case "message_react_remove":
                 # Handle request to remove a reaction from a message
                 username = getattr(ws, 'username', None)
@@ -245,7 +245,7 @@ def handle(ws, message, server_data=None):
 
                 if not channels.remove_reaction(channel_name, message_id, emoji, username):
                     return {"cmd": "error", "val": "Failed to remove reaction"}
-                return {"cmd": "message_react_remove", "id": message_id, "emoji": emoji, "channel": channel_name, "global": True}
+                return {"cmd": "message_react_remove", "id": message_id, "emoji": emoji, "channel": channel_name, "from": username, "global": True}
             case "messages_get":
                 # Handle request for channel messages
                 channel_name = message.get("channel")
