@@ -1,5 +1,6 @@
 import json, os
 from . import users
+import emoji
 
 _MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -484,21 +485,23 @@ def can_user_react(channel_name, user_roles):
         return False
     return False
 
-def add_reaction(channel_name, message_id, emoji, user_id):
+def add_reaction(channel_name, message_id, emoji_str, user_id):
     try:
         with open(f"{channels_db_dir}/{channel_name}.json") as f:
             channel_data = json.load(f)
 
         for msg in channel_data:
             if msg.get("id") == message_id:
+                if emoji_str not in emoji.EMOJI_DATA:
+                    return False
 
                 msg.setdefault("reactions", {})
-                msg["reactions"].setdefault(emoji, [])
+                msg["reactions"].setdefault(emoji_str, [])
 
-                if user_id in msg["reactions"][emoji]:
+                if user_id in msg["reactions"][emoji_str]:
                     return True  # already reacted
 
-                msg["reactions"][emoji].append(user_id)
+                msg["reactions"][emoji_str].append(user_id)
 
                 with open(f"{channels_db_dir}/{channel_name}.json", "w") as f:
                     json.dump(channel_data, f, separators=(",", ":"), ensure_ascii=False)
@@ -510,25 +513,27 @@ def add_reaction(channel_name, message_id, emoji, user_id):
     except FileNotFoundError:
         return False
 
-def remove_reaction(channel_name, message_id, emoji, user_id):
+def remove_reaction(channel_name, message_id, emoji_str, user_id):
     try:
         with open(f"{channels_db_dir}/{channel_name}.json") as f:
             channel_data = json.load(f)
 
         for msg in channel_data:
             if msg.get("id") == message_id:
+                if emoji_str not in emoji.EMOJI_DATA:
+                    return False
 
                 reactions = msg.get("reactions", {})
-                if emoji not in reactions:
+                if emoji_str not in reactions:
                     return False
 
-                if user_id not in reactions[emoji]:
+                if user_id not in reactions[emoji_str]:
                     return False
 
-                reactions[emoji].remove(user_id)
+                reactions[emoji_str].remove(user_id)
 
-                if not reactions[emoji]:
-                    del reactions[emoji]
+                if not reactions[emoji_str]:
+                    del reactions[emoji_str]
                 if not reactions:
                     del msg["reactions"]
 
