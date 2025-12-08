@@ -159,6 +159,8 @@ def does_user_have_permission(channel_name, user_roles, permission_type):
     Returns:
         bool: True if the user has the required permission, False otherwise.
     """
+    if "owner" in user_roles:
+        return True
     try:
         with open(channels_index, 'r') as f:
             channels_data = json.load(f)
