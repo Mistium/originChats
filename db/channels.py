@@ -17,7 +17,7 @@ def get_channel(channel_name):
             return channel
     return None
 
-def get_channel_messages(channel_name, limit=100):
+def get_channel_messages(channel_name, start=0, limit=100):
     """
     Retrieve messages from a specific channel.
 
@@ -34,9 +34,15 @@ def get_channel_messages(channel_name, limit=100):
             channel_data = json.load(f)
     except FileNotFoundError:
         return []
+    
+    if start < 0:
+        start = 0
+    
+    end = len(channel_data) - start
+    begin = max(0, end - limit)
 
-    # Return the last 'limit' messages
-    return channel_data[-limit:]
+    # Return the last 'limit' messages starting from 'start'
+    return channel_data[begin:end]
 
 def save_channel_message(channel_name, message):
     """

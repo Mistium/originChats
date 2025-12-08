@@ -249,7 +249,8 @@ def handle(ws, message, server_data=None):
             case "messages_get":
                 # Handle request for channel messages
                 channel_name = message.get("channel")
-                limit = message.get("limit", 100)
+                start = message.get("start", 0)
+                limit = start + message.get("limit", 100)
 
                 if not channel_name:
                     return {"cmd": "error", "val": "Invalid channel name"}
@@ -268,7 +269,7 @@ def handle(ws, message, server_data=None):
                 if channel_name not in [c.get("name") for c in allowed_channels if c.get("type") == "text"]:
                     return {"cmd": "error", "val": "Access denied to this channel"}
 
-                messages = channels.get_channel_messages(channel_name, limit)
+                messages = channels.get_channel_messages(channel_name, start=start, limit=limit)
                 return {"cmd": "messages_get", "channel": channel_name, "messages": messages}
             case "message_get":
                 # Handle request for a specific message by ID
