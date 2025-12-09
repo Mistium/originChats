@@ -31,7 +31,7 @@ Accessible here: https://originchats.mistium.com/
 | multiple servers   | yes     | yes    | yes            | yes   | yes          |
 | replies            | yes     | yes    | yes            | yes   | yes          |
 | image embeds       |         |        |                | yes   | yes          |
-| tenor and gifs     |         |        | yes            |       | yes          |
-| pings              |         |        |                | yes   | yes          |
+| tenor and gifs     |         |        | yes            | yes   | yes          |
+| pings              |         |        | yes            | yes   | yes          |
 
 Table created with https://www.tablesgenerator.com/markdown_tables
