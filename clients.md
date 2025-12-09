@@ -16,22 +16,31 @@ Accessible here: https://runnova.github.io/orion/
 ## mistium html
 Accessible here: https://originchats.mistium.com/
 
-|                    | stormy | allucat electron | mistium origin | orion | mistium html |
-|--------------------|--------|------------------|----------------|-------|--------------|
-| message grouping   |        | yes              | yes            | yes   | yes          |
-| role colours       | yes    | yes              | yes            | yes   | yes          |
-| editing messages   | yes    |                  | yes            |       | yes          |
-| deleting messages  |        | yes              | yes            | yes   | yes          |
-| links              | yes    | yes              |                | yes   | yes          |
-| infinite scrolling |        | yes              |                | yes   | yes          |
-| emoji shortcodes   |        | yes              |                | yes   | yes          |
-| markdown           | yes    | yes              |                | yes   | yes          |
-| reactions          |        | yes              | yes            |       | yes          |
-| typing indicators  |        |                  | yes            | yes   | yes          |
-| multiple servers   | yes    | yes              | yes            | yes   | yes          |
-| replies            | yes    |                  | yes            | yes   | yes          |
-| image embeds       |        | yes              | yes            | yes   | yes          |
-| tenor and gifs     |        | yes              | yes            | yes   | yes          |
-| pings              |        | yes              | yes            | yes   | yes          |
+|                     | stormy | allucat electron | mistium origin | orion | mistium html |
+|---------------------|--------|------------------|----------------|-------|--------------|
+| message grouping    |        | yes              | yes            | yes   | yes          |
+| role colours        | yes    | yes              | yes            | yes   | yes          |
+| editing messages    | yes    |                  | yes            |       | yes          |
+| deleting messages   |        | yes              | yes            | yes   | yes          |
+| links               | yes    | yes              |                | yes   | yes          |
+| infinite scrolling  |        | yes              |                | yes   | yes          |
+| emoji shortcodes    |        | yes              |                | yes   | yes          |
+| markdown            | yes    | yes              |                | yes   | yes          |
+| reactions           |        | yes              | yes            |       | yes          |
+| typing indicators   |        |                  | yes            | yes   | yes          |
+| multiple servers    | yes    | yes              | yes            | yes   | yes          |
+| replies             | yes    |                  | yes            | yes   | yes          |
+| image embeds        |        | yes              | yes            | yes   | yes          |
+| tenor and gifs      |        | yes              | yes            | yes   | yes          |
+| pings               |        | yes              | yes            | yes   | yes          |
+| rate limit handling |        |                  | yes            |       |              |
+| profile view        |        |                  | yes            | yes   |              |
+| pinned messages     |        |                  | yes            |       |              |
+| message searching   |        |                  |                |       |              |
+| user list           |        |                  | yes            | yes   | yes          |
+| channel links (#)   |        |                  |                |       |              |
+| message links (#$)  |        |                  |                |       |              |
+| timeouts            |        |                  | yes            |       |              |
+| server leaving      |        |                  | yes            |       |              |
 
 Table created with https://www.tablesgenerator.com/markdown_tables
