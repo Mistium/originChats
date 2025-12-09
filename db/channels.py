@@ -36,8 +36,6 @@ def get_channel_messages(channel_name, start, limit):
             channel_data = json.load(f)
     except FileNotFoundError:
         return []
-    
-    print(limit)
 
     if not limit:
         limit = 100
@@ -74,8 +72,6 @@ def get_channel_messages(channel_name, start, limit):
 
     if begin == end:
         return []
-
-    print(begin, end, len(channel_data), start, limit)
     
     return channel_data[begin:end]
 
