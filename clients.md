@@ -18,17 +18,17 @@ Accessible here: https://originchats.mistium.com/
 
 |                    | huopaOS | stormy | mistium origin | orion | mistium html |
 |--------------------|---------|--------|----------------|-------|--------------|
-| message grouping   |         |        |                | yes   | yes          |
+| message grouping   |         |        | yes            | yes   | yes          |
 | role colours       | yes     | yes    | yes            | yes   | yes          |
 | editing messages   |         | yes    | yes            |       | yes          |
 | deleting messages  |         |        | yes            | yes   | yes          |
 | links              |         | yes    |                | yes   | yes          |
-| infinite scrolling |         |        |                |       | yes          |
+| infinite scrolling |         |        |                | yes   | yes          |
 | emoji shortcodes   | yes     |        |                | yes   | yes          |
 | markdown           |         | yes    |                |       | yes          |
 | reactions          |         |        | yes            |       | yes          |
-| typing indicators  |         |        |                | yes   | yes          |
-| multiple servers   | yes     | yes    | yes            |       | yes          |
+| typing indicators  |         |        | yes            | yes   | yes          |
+| multiple servers   | yes     | yes    | yes            | yes   | yes          |
 | replies            | yes     | yes    | yes            | yes   | yes          |
 | image embeds       |         |        |                | yes   | yes          |
 | tenor and gifs     |         |        | yes            |       | yes          |
