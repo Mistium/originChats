@@ -22,8 +22,8 @@ Accessible here: https://originchats.mistium.com/
 | role colours       | yes    | yes              | yes            | yes   | yes          |
 | editing messages   | yes    |                  | yes            |       | yes          |
 | deleting messages  |        | yes              | yes            | yes   | yes          |
-| links              | yes    |                  |                | yes   | yes          |
-| infinite scrolling |        |                  |                | yes   | yes          |
+| links              | yes    | yes              |                | yes   | yes          |
+| infinite scrolling |        | yes              |                | yes   | yes          |
 | emoji shortcodes   |        | yes              |                | yes   | yes          |
 | markdown           | yes    | yes              |                | yes   | yes          |
 | reactions          |        | yes              | yes            |       | yes          |
