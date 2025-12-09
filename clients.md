@@ -25,7 +25,7 @@ Accessible here: https://originchats.mistium.com/
 | links              |         | yes    |                | yes   | yes          |
 | infinite scrolling |         |        |                | yes   | yes          |
 | emoji shortcodes   | yes     |        |                | yes   | yes          |
-| markdown           |         | yes    |                |       | yes          |
+| markdown           |         | yes    |                | yes   | yes          |
 | reactions          |         |        | yes            |       | yes          |
 | typing indicators  |         |        | yes            | yes   | yes          |
 | multiple servers   | yes     | yes    | yes            | yes   | yes          |
