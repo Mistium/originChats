@@ -290,6 +290,125 @@ def create_channel(channel_name, channel_type):
 
     return True
 
+def can_user_pin(channel_name, user_roles):
+    """
+    Check if a user with specific roles can pin messages in a channel.
+    If the channel does not specify pin, only owner is allowed by default
+    """
+    try:
+        with open(channels_index, 'r') as f:
+            channels_data = json.load(f)
+        for channel in channels_data:
+            if channel.get("name") == channel_name:
+                permissions = channel.get("permissions", {})
+                if "pin" not in permissions:
+                    return True  # Default: owner can pin
+                allowed_roles = permissions.get("pin", [])
+                return any(role in allowed_roles for role in user_roles)
+    except FileNotFoundError:
+        return False
+    
+def pin_channel_message(channel_name, message_id):
+    """
+    Pin a message in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to pin.
+
+    Returns:
+        bool: True if the message was pinned successfully, False otherwise.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+    except FileNotFoundError:
+        return False
+
+    for msg in channel_data:
+        if msg.get("id") == message_id:
+            msg["pinned"] = True
+            break
+    else:
+        return False  # Message not found
+
+    # Save the updated channel data
+    with open(f"{channels_db_dir}/{channel_name}.json", 'w') as f:
+        json.dump(channel_data, f, separators=(",", ":"), ensure_ascii=False)
+
+    return True
+
+def unpin_channel_message(channel_name, message_id):
+    """
+    Unpin a message in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        message_id (str): The ID of the message to unpin.
+
+    Returns:
+        bool: True if the message was unpinned successfully, False otherwise.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            channel_data = json.load(f)
+    except FileNotFoundError:
+        return False
+
+    for msg in channel_data:
+        if msg.get("id") == message_id:
+            msg["pinned"] = False
+            break
+    else:
+        return False  # Message not found
+
+    # Save the updated channel data
+    with open(f"{channels_db_dir}/{channel_name}.json", 'w') as f:
+        json.dump(channel_data, f, separators=(",", ":"), ensure_ascii=False)
+
+    return True
+
+def get_pinned_messages(channel_name):
+    """
+    Get the pinned messages in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        limit (int): The maximum number of messages to retrieve.
+
+    Returns:
+        list: A list of all pinned messages in a channel
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            messages = json.load(f)
+    except FileNotFoundError:
+        return []
+
+    pinned = [msg for msg in messages if msg.get("pinned")]
+    return list(reversed(pinned))
+
+def search_channel_messages(channel_name, query):
+    """
+    Search for messages in a specific channel.
+
+    Args:
+        channel_name (str): The name of the channel.
+        query (str): The search query.
+        limit (int): The maximum number of messages to retrieve.
+
+    Returns:
+        list: A list of messages that match the search query.
+    """
+    try:
+        with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
+            messages = json.load(f)
+    except FileNotFoundError:
+        return []
+
+    search_results = [msg for msg in messages if query in msg.get("content", "").lower()]
+    return list(reversed(search_results))
+
 def delete_channel(channel_name):
     """
     Delete a channel.

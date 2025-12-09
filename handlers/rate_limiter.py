@@ -18,6 +18,8 @@ class RateLimiter:
         self.user_last_burst = defaultdict(float)
         
         self.lock = threading.Lock()
+
+        self.user_cooldown_until = defaultdict(lambda: 0.0)
     
     def is_allowed(self, user_id):
         """
@@ -26,6 +28,10 @@ class RateLimiter:
         """
         with self.lock:
             current_time = time.time()
+
+            if self.user_cooldown_until[user_id] > current_time:
+                remaining = self.user_cooldown_until[user_id] - current_time
+                return False, f"You are in timeout for {remaining:.1f} more seconds", remaining
             
             # Clean old messages (older than 1 minute)
             user_msgs = self.user_messages[user_id]
@@ -85,3 +91,10 @@ class RateLimiter:
                 "burst_limit": self.burst_limit,
                 "cooldown_remaining": cooldown_remaining
             }
+
+    def set_user_timeout(self, user_id, timeout_seconds):
+        """Ban user from sending messages for `timeout_seconds` starting now"""
+        with self.lock:
+            self.user_cooldown_until[user_id] = time.time() + timeout_seconds
+            self.user_messages[user_id].clear()
+        return True

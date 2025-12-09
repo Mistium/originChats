@@ -98,7 +98,8 @@ class OriginChatsServer:
                         "connected_clients": self.connected_clients,
                         "config": self.config,
                         "plugin_manager": self.plugin_manager,
-                        "rate_limiter": self.rate_limiter
+                        "rate_limiter": self.rate_limiter,
+                        "send_to_client": send_to_client
                     }
                     
                     # Handle message

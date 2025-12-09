@@ -1,8 +1,5 @@
 from db import channels, users, roles
-import time
-import uuid
-import sys
-import os
+import time, uuid, sys, os, asyncio
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from logger import Logger
 
@@ -55,7 +52,7 @@ def handle(ws, message, server_data=None):
                     if not is_allowed:
                         # Convert wait time to milliseconds and send rate_limit packet
                         wait_time_ms = int(wait_time * 1000)
-                        return {"cmd": "rate_limit", "length": wait_time_ms}
+                        return {"cmd": "rate_limit", "reason": reason, "length": wait_time_ms}
 
                 user_roles = users.get_user_roles(user)
                 if not user_roles:
@@ -193,6 +190,97 @@ def handle(ws, message, server_data=None):
                 if not channels.delete_channel_message(channel_name, message_id):
                     return {"cmd": "error", "val": "Failed to delete message"}
                 return {"cmd": "message_delete", "id": message_id, "channel": channel_name, "global": True}
+            case "message_pin":
+                # Handle request to pin a message
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles:
+                    return {"cmd": "error", "val": "User roles not found"}
+
+                channel_name = message.get("channel")
+                if not channel_name:
+                    return {"cmd": "error", "val": "Channel name not provided"}
+                
+                if not channels.can_user_pin(channel_name, user_roles):
+                    return {"cmd": "error", "val": "You do not have permission to pin messages in this channel"}
+
+                message_id = message.get("id")
+                if not message_id:
+                    return {"cmd": "error", "val": "Message ID is required"}
+
+                pinned = channels.pin_channel_message(channel_name, message_id)
+                return {"cmd": "message_pin", "id": message_id, "channel": channel_name, "pinned": pinned, "global": True}
+            case "message_unpin":
+                # Handle request to unpin a message
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles:
+                    return {"cmd": "error", "val": "User roles not found"}
+
+                channel_name = message.get("channel")
+                if not channel_name:
+                    return {"cmd": "error", "val": "Channel name not provided"}
+                
+                if not channels.can_user_pin(channel_name, user_roles):
+                    return {"cmd": "error", "val": "You do not have permission to pin messages in this channel"}
+
+                message_id = message.get("id")
+                if not message_id:
+                    return {"cmd": "error", "val": "Message ID is required"}
+
+                pinned = channels.unpin_channel_message(channel_name, message_id)
+                return {"cmd": "message_unpin", "id": message_id, "channel": channel_name, "pinned": pinned, "global": True}
+            case "messages_pinned":
+                # Handle request for pinned messages in a channel
+                channel_name = message.get("channel")
+                if not channel_name:
+                    return {"cmd": "error", "val": "Channel name not provided"}
+                
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "User not authenticated"}
+                
+                user_data = users.get_user(username)
+                if not user_data:
+                    return {"cmd": "error", "val": "User not found"}
+                
+                # Check if user can see this channel
+                allowed_channels = channels.get_all_channels_for_roles(user_data.get("roles", []))
+
+                if channel_name not in [c.get("name") for c in allowed_channels if c.get("type") == "text"]:
+                    return {"cmd": "error", "val": "Access denied to this channel"}
+
+                pinned_messages = channels.get_pinned_messages(channel_name)
+                return {"cmd": "messages_pinned", "channel": channel_name, "messages": pinned_messages}
+            case "messages_search":
+                # Handle request for search results in a channel
+                channel_name = message.get("channel")
+                query = message.get("query")
+                if not channel_name or not query:
+                    return {"cmd": "error", "val": "Channel name and query are required"}
+                
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "User not authenticated"}
+                
+                user_data = users.get_user(username)
+                if not user_data:
+                    return {"cmd": "error", "val": "User not found"}
+                
+                # Check if user can see this channel
+                allowed_channels = channels.get_all_channels_for_roles(user_data.get("roles", []))
+
+                if channel_name not in [c.get("name") for c in allowed_channels if c.get("type") == "text"]:
+                    return {"cmd": "error", "val": "Access denied to this channel"}
+
+                search_results = channels.search_channel_messages(channel_name, query)
+                return {"cmd": "messages_search", "channel": channel_name, "query": query, "results": search_results}
             case "message_react_add":
                 # Handle request to add a reaction to a message
                 username = getattr(ws, 'username', None)
@@ -336,6 +424,35 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "User not found"}
                 channels_list = channels.get_all_channels_for_roles(user_data.get("roles", []))
                 return {"cmd": "channels_get", "val": channels_list}
+            case "user_timeout":
+                # Handle request to set timeout for a user
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles or "owner" not in user_roles:
+                    return {"cmd": "error", "val": "Access denied: owner role required"}
+
+                timeout = message.get("timeout")
+                if not timeout:
+                    return {"cmd": "error", "val": "Timeout must be provided"}
+
+                if not isinstance(timeout, int):
+                    return {"cmd": "error", "val": "Timeout must be a positive integer"}
+                
+                timeout = int(timeout)
+                if timeout < 0:
+                    return {"cmd": "error", "val": "Timeout must be a positive integer"}
+
+                if server_data and server_data.get("rate_limiter"):
+                    server_data["rate_limiter"].set_user_timeout(username, timeout * 1000)
+                    asyncio.create_task(server_data["send_to_client"](ws, {
+                        "cmd": "rate_limit",
+                        "reason": "User timeout set",
+                        "length": timeout
+                    }))
+                return {"cmd": "user_timeout", "user": username, "timeout": timeout}
             case "users_list":
                 # Handle request for all users list
                 username = getattr(ws, 'username', None)

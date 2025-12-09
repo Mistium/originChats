@@ -6,11 +6,13 @@
 {
   "cmd": "messages_get",
   "channel": "<channel_name>",
+  "start": <optional_start>,
   "limit": <optional_limit>
 }
 ```
 
 - `channel`: Channel name.
+- `start`: (Optional) Message ID to start fetching from (default 0).
 - `limit`: (Optional) Number of messages to fetch (default 100).
 
 **Response:**
