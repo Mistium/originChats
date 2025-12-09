@@ -450,7 +450,7 @@ def handle(ws, message, server_data=None):
                     asyncio.create_task(server_data["send_to_client"](ws, {
                         "cmd": "rate_limit",
                         "reason": "User timeout set",
-                        "length": timeout
+                        "length": timeout * 1000
                     }))
                 return {"cmd": "user_timeout", "user": username, "timeout": timeout}
             case "users_list":
