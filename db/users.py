@@ -138,7 +138,7 @@ def ban_user(user_id):
     """
     user = get_user(user_id)
     if user and "banned" not in user.get("roles", []):
-        user["roles"].append("banned")
+        user["roles"].insert(0, "banned")
         save_user(user_id, user)
         return True
     return False
@@ -160,7 +160,7 @@ def give_role(user_id, role):
     """
     user = get_user(user_id)
     if user:
-        user["roles"].append(role)
+        user["roles"].insert(0, role)
         save_user(user_id, user)
         return True
     return False

@@ -44,7 +44,10 @@ class UserCommands:
     @staticmethod
     def ban(handler, args):
         """
-        Ban a user: ban <username>
+        Ban a user
+
+        Arguments:
+        1. Username
         """
         if len(args) < 1:
             return handler.error("Usage: ban <username>")
@@ -66,7 +69,10 @@ class UserCommands:
     @staticmethod
     def unban(handler, args):
         """
-        Unban a user: unban <username>
+        Unban a user
+
+        Arguments:
+        1. Username
         """
         if len(args) < 1:
             return handler.error("Usage: unban <username>")
@@ -80,7 +86,7 @@ class UserCommands:
     @staticmethod
     def banned(handler, args):
         """
-        List all banned users: banned
+        Lists all banned users
         """
         banned_users = users.get_banned_users()
         if banned_users:
@@ -91,7 +97,7 @@ class UserCommands:
     @staticmethod
     def users_list(handler, args):
         """
-        List all users: users
+        Lists all users
         """
         user_list = users.get_users()
         if user_list:
@@ -109,7 +115,7 @@ class ChannelCommands:
     @staticmethod
     def channels_list(handler, args):
         """
-        List all channels: channels
+        Lists all channels
         """
         channel_list = channels.get_channels()
         if channel_list:
@@ -124,8 +130,11 @@ class ChannelCommands:
     @staticmethod
     def create_channel(handler, args):
         """
-        Create a channel: create <name> <type>
-        Types: text, separator
+        Create a channel
+
+        Arguments:
+        1. Channel name
+        2. Channel type (text or separator)
         """
         if len(args) < 2:
             return handler.error("Usage: create <name> <type>\nTypes: text, separator")
@@ -142,7 +151,10 @@ class ChannelCommands:
     @staticmethod
     def delete_channel(handler, args):
         """
-        Delete a channel: delete <name>
+        Delete a channel
+
+        Arguments:
+        1. Channel name
         """
         if len(args) < 1:
             return handler.error("Usage: delete <name>")
@@ -156,7 +168,10 @@ class ChannelCommands:
     @staticmethod
     def channel_info(handler, args):
         """
-        Get channel info: info <name>
+        Get channel info
+
+        Arguments:
+        1. Channel name
         """
         if len(args) < 1:
             return handler.error("Usage: info <name>")
@@ -176,13 +191,51 @@ class ChannelCommands:
         else:
             handler.error(f"Channel '{name}' not found")
 
+    @staticmethod
+    def channel_move(handler, args):
+        """
+        Move a channel in the order
+        
+        Arguments:
+        1. Channel name
+        2. Index of the new position
+        """
+        if len(args) < 2:
+            return handler.error("Usage: channel_move [name] [index]")
+        
+        name, index = args[0], args[1]
+        if not channels.reorder_channel(name, index):
+            handler.error(f"Failed to move channel '{name}' to position {index}")
+        else:
+            handler.success(f"Moved channel '{name}' to position {index}")
+
+    @staticmethod
+    def channel_setpermissions(handler, args):
+        """
+        Set permissions for a channel
+
+        Arguments:
+        1. Channel name
+        2. Role name
+        3. Permission type (view, send, edit_own)
+        4. Allow or deny (true or false)
+        """
+        if len(args) < 4:
+            return handler.error("Usage: channel_setpermissions [name] [role] [permission] [allow]")
+        
+        name, role, permission, allow = args[0], args[1], args[2], args[3]
+        if not channels.set_channel_permissions(name, role, permission, allow):
+            handler.error(f"Failed to set permissions for role '{role}' on channel '{name}'")
+        else:
+            handler.success(f"Set permissions for role '{role}' on channel '{name}'")
+
 
 class RoleCommands:
     
     @staticmethod
     def roles_list(handler, args):
         """
-        List all roles: roles
+        Lists all roles
         """
         all_roles = roles.get_all_roles()
         if all_roles:
@@ -197,10 +250,13 @@ class RoleCommands:
     @staticmethod
     def create_role(handler, args):
         """
-        Create a role: createrole <name>
+        Create a role
+
+        Arguments:
+        1. Role name
         """
         if len(args) < 1:
-            return handler.error("Usage: createrole <name>")
+            return handler.error("Usage: createrole [name]")
         
         role_name = args[0]
         if roles.add_role(role_name, {}):
@@ -211,10 +267,13 @@ class RoleCommands:
     @staticmethod
     def delete_role(handler, args):
         """
-        Delete a role: deleterole <name>
+        Delete a role
+
+        Arguments:
+        1. Role name
         """
         if len(args) < 1:
-            return handler.error("Usage: deleterole <name>")
+            return handler.error("Usage: deleterole [name]")
         
         role_name = args[0]
         if roles.delete_role(role_name):
@@ -225,7 +284,11 @@ class RoleCommands:
     @staticmethod
     def give_role(handler, args):
         """
-        Give role to user: give <username> <role>
+        Give role to user
+
+        Arguments:
+        1. Username
+        2. Role name
         """
         if len(args) < 2:
             return handler.error("Usage: give <username> <role>")
@@ -239,10 +302,14 @@ class RoleCommands:
     @staticmethod
     def remove_role(handler, args):
         """
-        Remove role from user: remove <username> <role>
+        Remove role from user
+
+        Arguments:
+        1. Username
+        2. Role name
         """
         if len(args) < 2:
-            return handler.error("Usage: remove <username> <role>")
+            return handler.error("Usage: remove [username] [role]")
         
         username, role_name = args[0], args[1]
         if users.remove_role(username, role_name):
@@ -253,10 +320,14 @@ class RoleCommands:
     @staticmethod
     def rolecolor(handler, args):
         """
-        Update role color: rolecolor <role> <color>
+        Update role color
+
+        Arguments:
+        1. Role name
+        2. Color (hex code)
         """
         if len(args) < 2:
-            return handler.error("Usage: rolecolor <role> <color>")
+            return handler.error("Usage: rolecolor [role] [color]")
         
         role_name, color = args[0], args[1]
         if roles.update_role_key(role_name, "color", color):
@@ -270,7 +341,10 @@ class ModerationCommands:
     @staticmethod
     def purge(handler, args):
         """
-        Purge messages: purge <count>
+        Purge messages
+
+        Arguments:
+        1. Number of messages to purge
         """
         if len(args) < 1 or not args[0].isdigit():
             return handler.error("Usage: purge <count>")
@@ -288,18 +362,20 @@ class ModerationCommands:
 COMMANDS = {
     "ban": UserCommands.ban,
     "unban": UserCommands.unban,
-    "banned": UserCommands.banned,
-    "users": UserCommands.users_list,
-    "channels": ChannelCommands.channels_list,
-    "create": ChannelCommands.create_channel,
-    "delete": ChannelCommands.delete_channel,
-    "info": ChannelCommands.channel_info,
-    "roles": RoleCommands.roles_list,
-    "createrole": RoleCommands.create_role,
-    "deleterole": RoleCommands.delete_role,
-    "give": RoleCommands.give_role,
-    "remove": RoleCommands.remove_role,
-    "rolecolor": RoleCommands.rolecolor,
+    "list_banned": UserCommands.banned,
+    "users_list": UserCommands.users_list,
+    "channels_list": ChannelCommands.channels_list,
+    "channel_create": ChannelCommands.create_channel,
+    "channel_delete": ChannelCommands.delete_channel,
+    "channel_getinfo": ChannelCommands.channel_info,
+    "channel_move": ChannelCommands.channel_move,
+    "channel_setpermissions": ChannelCommands.channel_setpermissions,
+    "roles_list": RoleCommands.roles_list,
+    "roles_create": RoleCommands.create_role,
+    "roles_delete": RoleCommands.delete_role,
+    "roles_give": RoleCommands.give_role,
+    "roles_remove": RoleCommands.remove_role,
+    "roles_setcolor": RoleCommands.rolecolor,
     "purge": ModerationCommands.purge,
 }
 
@@ -314,9 +390,9 @@ def show_help(handler, args):
         lines = ["📖 Available Commands:", ""]
         
         categories = {
-            "User Management": ["ban", "unban", "banned", "users"],
-            "Channel Management": ["channels", "create", "delete", "info"],
-            "Role Management": ["roles", "createrole", "deleterole", "give", "remove", "rolecolor"],
+            "User Management": ["ban", "unban", "list_banned", "users_list"],
+            "Channel Management": ["channels_list", "channel_create", "channel_delete", "channel_getinfo", "channel_move", "channel_setpermissions"],
+            "Role Management": ["roles_list", "roles_create", "roles_delete", "roles_give", "roles_remove", "roles_setcolor"],
             "Moderation": ["purge"]
         }
         

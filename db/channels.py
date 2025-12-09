@@ -17,31 +17,66 @@ def get_channel(channel_name):
             return channel
     return None
 
-def get_channel_messages(channel_name, start=0, limit=100):
+def get_channel_messages(channel_name, start, limit):
     """
     Retrieve messages from a specific channel.
 
     Args:
         channel_name (str): The name of the channel to retrieve messages from.
-        limit (int): The maximum number of messages to retrieve.
+        start (int or str, optional): If int, the number of recent messages to skip (offset from the end). 
+                                      If str, the message ID to retrieve messages before (older messages than the specified ID). 
+                                      Defaults to 0.
+        limit (int, optional): The maximum number of messages to retrieve. Defaults to 100.
 
     Returns:
-        list: A list of messages from the specified channel.
+        list: A list of messages from the specified channel, in chronological order (oldest first).
     """
-    # Load the channel data
     try:
         with open(f"{channels_db_dir}/{channel_name}.json", 'r') as f:
             channel_data = json.load(f)
     except FileNotFoundError:
         return []
     
-    if start < 0:
-        start = 0
-    
-    end = len(channel_data) - start
-    begin = max(0, end - limit)
+    print(limit)
 
-    # Return the last 'limit' messages starting from 'start'
+    if not limit:
+        limit = 100
+
+    if limit > 200:
+        limit = 200
+    
+    if isinstance(start, int):
+        if start < 0:
+            start = 0
+        end = len(channel_data) - start
+        begin = max(0, end - limit)
+    else:
+        index = None
+        for i, msg in enumerate(channel_data):
+            if msg.get('id') == start:
+                index = i
+                break
+        if index is None:
+            return []
+        end = index
+        begin = max(0, end - limit)
+
+    channel_data_len = len(channel_data)
+    if begin > channel_data_len:
+        return []
+    if end > channel_data_len:
+        end = channel_data_len
+    
+    if begin < 0:
+        begin = 0
+    if end < 0:
+        end = 0
+
+    if begin == end:
+        return []
+
+    print(begin, end, len(channel_data), start, limit)
+    
     return channel_data[begin:end]
 
 def save_channel_message(channel_name, message):
