@@ -89,7 +89,6 @@ class PluginManager:
         """Trigger an event for all plugins that handle it"""
         
         if event not in self.event_handlers:
-            Logger.warning(f"No handlers found for event '{event}'")
             return
         
         for handler_info in self.event_handlers[event]:

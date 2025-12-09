@@ -156,6 +156,12 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "You do not have permission to edit this message"}
                 if not channels.edit_channel_message(channel_name, message_id, new_content):
                     return {"cmd": "error", "val": "Failed to edit message"}
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("message_edit", ws, {
+                        "channel": channel_name,
+                        "id": message_id,
+                        "content": new_content
+                    }, server_data)
                 return {"cmd": "message_edit", "id": message_id, "content": new_content, "channel": channel_name, "global": True}
             case "message_delete":
                 # Handle message delete
@@ -189,6 +195,11 @@ def handle(ws, message, server_data=None):
 
                 if not channels.delete_channel_message(channel_name, message_id):
                     return {"cmd": "error", "val": "Failed to delete message"}
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("message_delete", ws, {
+                        "channel": channel_name,
+                        "id": message_id
+                    }, server_data)
                 return {"cmd": "message_delete", "id": message_id, "channel": channel_name, "global": True}
             case "message_pin":
                 # Handle request to pin a message
@@ -212,6 +223,12 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "Message ID is required"}
 
                 pinned = channels.pin_channel_message(channel_name, message_id)
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("message_pin", ws, {
+                        "channel": channel_name,
+                        "id": message_id,
+                        "pinned": pinned
+                    }, server_data)
                 return {"cmd": "message_pin", "id": message_id, "channel": channel_name, "pinned": pinned, "global": True}
             case "message_unpin":
                 # Handle request to unpin a message
@@ -235,6 +252,12 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "Message ID is required"}
 
                 pinned = channels.unpin_channel_message(channel_name, message_id)
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("message_unpin", ws, {
+                        "channel": channel_name,
+                        "id": message_id,
+                        "pinned": pinned
+                    }, server_data)
                 return {"cmd": "message_unpin", "id": message_id, "channel": channel_name, "pinned": pinned, "global": True}
             case "messages_pinned":
                 # Handle request for pinned messages in a channel
@@ -452,7 +475,57 @@ def handle(ws, message, server_data=None):
                         "reason": "User timeout set",
                         "length": timeout * 1000
                     }))
+                    server_data["plugin_manager"].trigger_event("user_timeout", ws, {
+                        "username": username,
+                        "timeout": timeout * 1000,
+                    }, server_data)
                 return {"cmd": "user_timeout", "user": username, "timeout": timeout}
+            case "user_ban":
+                # Handle request to ban a user
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles or "owner" not in user_roles:
+                    return {"cmd": "error", "val": "Access denied: owner role required"}
+
+                banned = users.ban_user(username)
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("user_ban", ws, {
+                        "username": username
+                    }, server_data)
+                return {"cmd": "user_ban", "user": username, "banned": banned}
+            case "user_unban":
+                # Handle request to unban a user
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+
+                user_roles = users.get_user_roles(username)
+                if not user_roles or "owner" not in user_roles:
+                    return {"cmd": "error", "val": "Access denied: owner role required"}
+
+                unbanned = users.unban_user(username)
+                if server_data:
+                    server_data["plugin_manager"].trigger_event("user_unban", ws, {
+                        "username": username
+                    }, server_data)
+                return {"cmd": "user_unban", "user": username, "unbanned": unbanned}
+            case "user_leave":
+                username = getattr(ws, 'username', None)
+                if not username:
+                    return {"cmd": "error", "val": "Authentication required"}
+                
+                if not server_data or "connected_clients" not in server_data:
+                    return {"cmd": "error", "val": "Server data not available"}
+                
+                server_data["connected_clients"].remove(ws)
+                users.remove_user(username)
+                server_data["plugin_manager"].trigger_event("user_left", ws, {
+                    "username": username
+                }, server_data)
+                return {"cmd": "user_leave", "user": username, "val": "User left server", "global": True}
             case "users_list":
                 # Handle request for all users list
                 username = getattr(ws, 'username', None)

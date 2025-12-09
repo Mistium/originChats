@@ -175,3 +175,19 @@ def remove_role(user_id, role):
         save_user(user_id, user)
         return True
     return False
+
+def remove_user(user_id):
+    """
+    Remove a user from the users database.
+    """
+    try:
+        with open(users_index, "r") as f:
+            users = json.load(f)
+
+        users.pop(user_id, None)
+
+        with open(users_index, "w") as f:
+            json.dump(users, f, indent=4)
+    except FileNotFoundError:
+        return False
+    return True
