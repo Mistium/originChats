@@ -29,7 +29,7 @@ Accessible here: https://originchats.mistium.com/
 | reactions           |        | yes              | yes            |       | yes          |
 | typing indicators   |        |                  | yes            | yes   | yes          |
 | multiple servers    | yes    | yes              | yes            | yes   | yes          |
-| replies             | yes    |                  | yes            | yes   | yes          |
+| replies             | yes    | yes              | yes            | yes   | yes          |
 | image embeds        |        | yes              | yes            | yes   | yes          |
 | tenor and gifs      |        | yes              | yes            | yes   | yes          |
 | pings               |        | yes              | yes            | yes   | yes          |
@@ -37,7 +37,7 @@ Accessible here: https://originchats.mistium.com/
 | profile view        |        | yes              | yes            | yes   |              |
 | pinned messages     |        |                  | yes            |       |              |
 | message searching   |        |                  |                |       |              |
-| user list           |        |                  | yes            | yes   | yes          |
+| user list           |        | yes              | yes            | yes   | yes          |
 | channel links (#)   |        | yes              |                |       |              |
 | message links (#$)  |        |                  |                |       |              |
 | timeouts            |        | yes              | yes            |       |              |
