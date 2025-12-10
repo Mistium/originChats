@@ -20,14 +20,14 @@ Accessible here: https://originchats.mistium.com/
 |---------------------|--------|------------------|----------------|-------|--------------|
 | message grouping    |        | yes              | yes            | yes   | yes          |
 | role colours        | yes    | yes              | yes            | yes   | yes          |
-| editing messages    | yes    |                  | yes            |       | yes          |
+| editing messages    | yes    | yes              | yes            |       | yes          |
 | deleting messages   |        | yes              | yes            | yes   | yes          |
 | links               | yes    | yes              |                | yes   | yes          |
 | infinite scrolling  |        | yes              |                | yes   | yes          |
 | emoji shortcodes    |        | yes              |                | yes   | yes          |
 | markdown            | yes    | yes              |                | yes   | yes          |
 | reactions           |        | yes              | yes            |       | yes          |
-| typing indicators   |        |                  | yes            | yes   | yes          |
+| typing indicators   |        | yes              | yes            | yes   | yes          |
 | multiple servers    | yes    | yes              | yes            | yes   | yes          |
 | replies             | yes    | yes              | yes            | yes   | yes          |
 | image embeds        |        | yes              | yes            | yes   | yes          |
