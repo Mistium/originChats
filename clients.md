@@ -35,7 +35,7 @@ Accessible here: https://originchats.mistium.com/
 | pings               |        | yes              | yes            | yes   | yes          |
 | rate limit handling |        | yes              | yes            |       |              |
 | profile view        |        | yes              | yes            | yes   |              |
-| pinned messages     |        |                  | yes            |       |              |
+| pinned messages     |        | yes              | yes            |       |              |
 | message searching   |        |                  |                |       |              |
 | user list           |        | yes              | yes            | yes   | yes          |
 | channel links (#)   |        | yes              |                |       |              |
