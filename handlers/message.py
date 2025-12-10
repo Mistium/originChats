@@ -110,7 +110,7 @@ def handle(ws, message, server_data=None):
                     is_allowed, reason, wait_time = server_data["rate_limiter"].is_allowed(user)
                     if not is_allowed:
                         # Convert wait time to milliseconds and send rate_limit packet
-                        return {"cmd": "rate_limit", "val": reason, "wait_time": wait_time}
+                        return {"cmd": "rate_limit", "reason": reason, "wait_time": wait_time * 1000}
 
                 channel_name = message.get("channel")
                 if not channel_name:
@@ -467,19 +467,30 @@ def handle(ws, message, server_data=None):
                 timeout = int(timeout)
                 if timeout < 0:
                     return {"cmd": "error", "val": "Timeout must be a positive integer"}
+                
+                target = message.get("user")
+                if not target:
+                    return {"cmd": "error", "val": "User parameter is required"}
 
-                if server_data and server_data.get("rate_limiter"):
+                if server_data and server_data.get("rate_limiter") and server_data.get("connected_clients"):
                     server_data["rate_limiter"].set_user_timeout(username, timeout)
-                    asyncio.create_task(server_data["send_to_client"](ws, {
-                        "cmd": "rate_limit",
-                        "reason": "User timeout set",
-                        "length": timeout * 1000
-                    }))
+                    clients = server_data["connected_clients"]
+                    user_ws = None
+                    for ws in clients:
+                        if getattr(ws, "username", None) == target:
+                            user_ws = ws
+                            break
+                    if user_ws:
+                        asyncio.create_task(server_data["send_to_client"](user_ws, {
+                            "cmd": "rate_limit",
+                            "reason": "User timeout set",
+                            "length": timeout * 1000
+                        }))
                     server_data["plugin_manager"].trigger_event("user_timeout", ws, {
-                        "username": username,
+                        "username": target,
                         "timeout": timeout * 1000,
                     }, server_data)
-                return {"cmd": "user_timeout", "user": username, "timeout": timeout}
+                return {"cmd": "user_timeout", "user": target, "timeout": timeout}
             case "user_ban":
                 # Handle request to ban a user
                 username = getattr(ws, 'username', None)
