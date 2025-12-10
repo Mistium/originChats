@@ -469,7 +469,7 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "Timeout must be a positive integer"}
 
                 if server_data and server_data.get("rate_limiter"):
-                    server_data["rate_limiter"].set_user_timeout(username, timeout * 1000)
+                    server_data["rate_limiter"].set_user_timeout(username, timeout)
                     asyncio.create_task(server_data["send_to_client"](ws, {
                         "cmd": "rate_limit",
                         "reason": "User timeout set",
