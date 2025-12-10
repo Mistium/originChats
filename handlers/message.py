@@ -473,7 +473,7 @@ def handle(ws, message, server_data=None):
                     return {"cmd": "error", "val": "User parameter is required"}
 
                 if server_data and server_data.get("rate_limiter") and server_data.get("connected_clients"):
-                    server_data["rate_limiter"].set_user_timeout(username, timeout)
+                    server_data["rate_limiter"].set_user_timeout(target, timeout)
                     clients = server_data["connected_clients"]
                     user_ws = None
                     for ws in clients:
